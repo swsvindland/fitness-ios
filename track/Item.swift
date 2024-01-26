@@ -11,8 +11,12 @@ import SwiftData
 @Model
 final class Item {
     var timestamp: Date
+    var systolic: Int
+    var diastolic: Int
     
-    init(timestamp: Date) {
+    init(timestamp: Date, systolic: Int, diastolic: Int) {
         self.timestamp = timestamp
+        self.systolic = systolic
+        self.diastolic = diastolic
     }
 }

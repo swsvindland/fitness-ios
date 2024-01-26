@@ -16,10 +16,10 @@ struct ContentView: View {
         NavigationSplitView {
             List {
                 ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
+                    VStack(alignment: .leading) {
+                        Text("\(item.timestamp, format: Date.FormatStyle(date: .numeric))")
+                        Text("Systolic: \(item.systolic)")
+                        Text("Diastolic: \(item.diastolic)")
                     }
                 }
                 .onDelete(perform: deleteItems)
@@ -46,7 +46,7 @@ struct ContentView: View {
 
     private func addItem() {
         withAnimation {
-            let newItem = Item(timestamp: Date())
+            let newItem = Item(timestamp: Date(), systolic: 120, diastolic: 80)
             modelContext.insert(newItem)
         }
     }
