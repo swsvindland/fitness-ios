@@ -11,11 +11,16 @@ import SwiftData
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var items: [Item]
+    
+    @State private var showingPopover = false
+    
+    @State private var systolic: String = ""
+    @State private var diastolic: String = ""
 
     var body: some View {
         NavigationSplitView {
             List {
-                ForEach(items) { item in
+                ForEach(items.reversed()) { item in
                     VStack(alignment: .leading) {
                         Text("\(item.timestamp, format: Date.FormatStyle(date: .numeric))")
                         Text("Systolic: \(item.systolic)")
@@ -34,8 +39,18 @@ struct ContentView: View {
                 }
 #endif
                 ToolbarItem {
-                    Button(action: addItem) {
+                    Button(action: showAddItemPopover) {
                         Label("Add Item", systemImage: "plus")
+                    }
+                    .popover(isPresented: $showingPopover) {
+                        Form {
+                            TextField("Systolic", text: $systolic).keyboardType(.numberPad)
+                            TextField("Diastolic", text: $diastolic).keyboardType(.numberPad)
+                            
+                            Button(action: addItem, label: {
+                                Text("Save")
+                            })
+                        }
                     }
                 }
             }
@@ -43,14 +58,23 @@ struct ContentView: View {
             Text("Select an item")
         }
     }
+    
+    private func showAddItemPopover() {
+        showingPopover = true;
+    }
 
     private func addItem() {
+        showingPopover = false;
+        
+        var parsedSystolic = Int(systolic) ?? 0
+        var parsedDiastolic = Int(diastolic) ?? 0
+        
         withAnimation {
-            let newItem = Item(timestamp: Date(), systolic: 120, diastolic: 80)
+            let newItem = Item(timestamp: Date(), systolic: parsedSystolic, diastolic: parsedDiastolic)
             modelContext.insert(newItem)
         }
     }
-
+    
     private func deleteItems(offsets: IndexSet) {
         withAnimation {
             for index in offsets {
@@ -64,3 +88,9 @@ struct ContentView: View {
     ContentView()
         .modelContainer(for: Item.self, inMemory: true)
 }
+
+let numberFormatter: NumberFormatter = {
+     let formatter = NumberFormatter()
+     formatter.numberStyle = .decimal
+     return formatter
+ }()
