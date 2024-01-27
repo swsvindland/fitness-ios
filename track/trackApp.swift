@@ -25,7 +25,7 @@ struct trackApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RouteView()
         }
         .modelContainer(sharedModelContainer)
     }
