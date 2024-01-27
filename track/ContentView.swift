@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Charts
 import SwiftData
 
 struct ContentView: View {
@@ -18,46 +19,49 @@ struct ContentView: View {
     @State private var diastolic: String = ""
 
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items.reversed()) { item in
-                    VStack(alignment: .leading) {
-                        Text("\(item.timestamp, format: Date.FormatStyle(date: .numeric))")
-                        Text("Systolic: \(item.systolic)")
-                        Text("Diastolic: \(item.diastolic)")
-                    }
+            VStack() {
+                Chart(items) {
+                    LineMark(
+                        x: .value("Date", $0.timestamp),
+                        y: .value("Systolic", $0.systolic)
+                    )
+                    LineMark(
+                        x: .value("Date", $0.timestamp),
+                        y: .value("Diastolic", $0.diastolic)
+                    )
                 }
-                .onDelete(perform: deleteItems)
-            }
-#if os(macOS)
-            .navigationSplitViewColumnWidth(min: 180, ideal: 200)
-#endif
-            .toolbar {
-#if os(iOS)
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-#endif
-                ToolbarItem {
-                    Button(action: showAddItemPopover) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                    .popover(isPresented: $showingPopover) {
-                        Form {
-                            TextField("Systolic", text: $systolic).keyboardType(.numberPad)
-                            TextField("Diastolic", text: $diastolic).keyboardType(.numberPad)
-                            
-                            Button(action: addItem, label: {
-                                Text("Save")
-                            })
+                List {
+                    ForEach(items.reversed()) { item in
+                        VStack(alignment: .leading) {
+                            Text("\(item.timestamp, format: Date.FormatStyle(date: .numeric))")
+                            Text("Systolic: \(item.systolic)")
+                            Text("Diastolic: \(item.diastolic)")
                         }
                     }
+                    .onDelete(perform: deleteItems)
                 }
             }
-        } detail: {
-            Text("Select an item")
+//            .toolbar {
+//                ToolbarItem(placement: .navigationBarTrailing) {
+//                   EditButton()
+//                }
+//                ToolbarItem {
+//                    Button(action: showAddItemPopover) {
+//                        Label("Add Item", systemImage: "plus")
+//                    }
+//                    .popover(isPresented: $showingPopover) {
+//                        Form {
+//                            TextField("Systolic", text: $systolic).keyboardType(.numberPad)
+//                            TextField("Diastolic", text: $diastolic).keyboardType(.numberPad)
+//                            
+//                            Button(action: addItem, label: {
+//                                Text("Save")
+//                            })
+//                        }
+//                    }
+//                }
+//            }
         }
-    }
     
     private func showAddItemPopover() {
         showingPopover = true;
@@ -66,8 +70,8 @@ struct ContentView: View {
     private func addItem() {
         showingPopover = false;
         
-        var parsedSystolic = Int(systolic) ?? 0
-        var parsedDiastolic = Int(diastolic) ?? 0
+        let parsedSystolic = Int(systolic) ?? 0
+        let parsedDiastolic = Int(diastolic) ?? 0
         
         withAnimation {
             let newItem = Item(timestamp: Date(), systolic: parsedSystolic, diastolic: parsedDiastolic)
